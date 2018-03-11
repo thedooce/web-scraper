@@ -7,7 +7,18 @@
         <p class="lead">This utility scans a web page and retrieves information about text and images.</p>
         <p>The word count and frequency will be displayed via graphs, while the images will be displayed via carousel.</p>
         <asp:TextBox runat="server" ID="tbUrl" placeholder="Enter a Url"></asp:TextBox>
-        <p><a href="#" class="btn btn-primary btn-lg">Scan &raquo;</a></p>
+        <asp:Button runat="server" ID="btnScan" class="btn btn-primary btn-lg" Text="Scan &raquo;" OnClick="ScanBtn_Click"></asp:Button>
+    </div>
+
+    <div>
+        Total words found on page: <asp:Label runat="server" ID="lblCount"/>
+        <br />
+        Table:
+        <br />
+        <asp:Literal runat="server" ID="litWords">
+
+        </asp:Literal>
+        
     </div>
 
     <%--<div class="row">

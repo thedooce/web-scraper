@@ -29,3 +29,8 @@ textarea {
         padding: 0;
     }
 }
+
+/*Sets carosel images to be centered*/
+.carousel-inner > .item > img {
+    margin: 0 auto;
+}

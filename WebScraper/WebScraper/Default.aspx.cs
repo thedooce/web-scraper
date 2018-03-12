@@ -23,22 +23,43 @@ namespace WebScraper
             textDict = new Dictionary<string, int>();
             imgUrls = new List<string>();
         }
-        
+
+        /// <summary>
+        /// Takes the user input url, parses the web page, and renders the data
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void ScanBtn_Click(Object sender, EventArgs e)
         {
-            inputUrl = new Uri(tbUrl.Text);
-            wordCount = 0;
+            try
+            {
+                inputUrl = new Uri(tbUrl.Text);
+                wordCount = 0;
 
-            HtmlWeb web = new HtmlWeb();
-            HtmlDocument doc = web.Load(inputUrl);
+                HtmlWeb web = new HtmlWeb();
+                HtmlDocument doc = web.Load(inputUrl);
 
-            ParseTextData(doc);
-            ParseImageData(doc);
+                ParseTextData(doc);
+                ParseImageData(doc);
 
-            RenderTextTable();
-            RenderCarousel();
+                RenderTextTable();
+                RenderCarousel();
+
+                //If everything worked, don't render error
+                lblError.Visible = false;
+            }
+            catch (Exception ex)
+            {
+                lblError.Text = lblError.Text + ex.Message;
+                lblError.Visible = true;
+            }
+
         }
 
+        /// <summary>
+        /// Parses the document's body content and extracts the text into a dictionary, which keeps track of the occurence of each word.
+        /// </summary>
+        /// <param name="doc"></param>
         protected void ParseTextData(HtmlDocument doc)
         {
             foreach (var node in doc.DocumentNode.SelectSingleNode("//body").DescendantsAndSelf())
@@ -63,6 +84,10 @@ namespace WebScraper
             }
         }
 
+        /// <summary>
+        /// Parses the document for img tags and extracts the src values
+        /// </summary>
+        /// <param name="doc"></param>
         protected void ParseImageData(HtmlDocument doc)
         {
             imgUrls = doc.DocumentNode.Descendants("img")
@@ -71,15 +96,18 @@ namespace WebScraper
                 .ToList();
         }
 
+        /// <summary>
+        /// Renders a Bootstrap Carousel
+        /// </summary>
         protected void RenderCarousel()
-        { 
+        {
 
             if (imgUrls.Count > 0)
             {
                 var carouselInnerHtml = new StringBuilder();
                 var indicatorsHtml = new StringBuilder(@"<ol class='carousel-indicators'>");
 
-                //loop through and build up the html for indicators + images
+                //Loop the image urls and create the html for indicators and images
                 for (int i = 0; i < imgUrls.Count; i++)
                 {
                     Uri imageUri = new Uri(inputUrl, imgUrls[i]);
@@ -88,9 +116,9 @@ namespace WebScraper
                     carouselInnerHtml.AppendLine("</div>");
                     indicatorsHtml.AppendLine(i == 0 ? @"<li data-target='#myCarousel' data-slide-to='" + i + "' class='active'></li>" : @"<li data-target='#myCarousel' data-slide-to='" + i + "' class=''></li>");
                 }
-                //close tag
+
                 indicatorsHtml.AppendLine("</ol>");
-                //stick the html in the literal tags and the cache
+
                 litCarouselImages.Text = carouselInnerHtml.ToString();
                 litCarouselIndicators.Text = indicatorsHtml.ToString();
 
@@ -99,7 +127,7 @@ namespace WebScraper
         }
 
         /// <summary>
-        /// Displays the table for text count
+        /// Renders the table for text count
         /// </summary>
         protected void RenderTextTable()
         {
@@ -111,8 +139,8 @@ namespace WebScraper
             //Create a TableRow with TableCells for each KeyValuePair. Populate our Table with these new rows.
             foreach (var item in topSevenItems)
             {
-                TableRow tr = new TableRow();
-                TableCell tc1 = new TableCell { Text = item.Key, HorizontalAlign=HorizontalAlign.Left };
+                TableRow tr = new TableRow { BorderStyle = BorderStyle.Groove };
+                TableCell tc1 = new TableCell { Text = item.Key, HorizontalAlign = HorizontalAlign.Left };
                 TableCell tc2 = new TableCell { Text = item.Value.ToString(), HorizontalAlign = HorizontalAlign.Left };
                 tr.Cells.Add(tc1);
                 tr.Cells.Add(tc2);
@@ -120,7 +148,7 @@ namespace WebScraper
             }
 
             TableFooterRow trf = new TableFooterRow();
-            TableCell tc = new TableCell { Text = String.Format("Total number of words: {0}", wordCount.ToString()), ColumnSpan=2 };
+            TableCell tc = new TableCell { Text = String.Format("Total number of words: {0}", wordCount.ToString()), ColumnSpan = 2 };
             trf.Cells.Add(tc);
             tblData.Rows.Add(trf);
 
